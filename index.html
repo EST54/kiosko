@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pase de Lista Interactivo
+	 <link rel="icon" type="jpg" href="C:\Users\taki_\Desktop/logotecnologia.ico">
+    </title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            background-image: url('https://res.cloudinary.com/dafpqq4ru/image/upload/v1747966650/fondo_proyecto_pmzmdd.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .school-info {
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .school-name {
+            margin-bottom: 2px;
+            font-size: 1.8em;
+        }
+        .project-name {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.7);
+        }
+        #inputContainer {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+        }
+        #qrInput {
+            padding: 15px 20px;
+            font-size: 1.5em;
+            border-radius: 25px;
+            border: none;
+            width: calc(100% - 40px);
+            outline: none;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        #message {
+            font-size: 1.5em;
+            margin-top: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="school-name">Escuela Secundaria Tecnica 54</h1>
+        <p class="project-name">IDTec</p>
+    </div>
+    <div id="inputContainer">
+        <input type="text" id="qrInput" placeholder="Acerque su código QR">
+    </div>
+    <div id="message"></div>
+
+    <script>
+        const qrInput = document.getElementById('qrInput');
+        const messageDiv = document.getElementById('message');
+        const APP_WEB_URL = 'https://script.google.com/macros/s/AKfycbwF7-RQ4HyEuMW06GyqqQo05ZkgCY0nJaCceI0lOw7GejcNNYM8LtSLR2H86jQkwh6_Kw/exec'; // Reemplaza con la URL de tu app web (la de doGet)
+
+        qrInput.addEventListener('change', function() {
+            const currentValue = qrInput.value.trim();
+            if (currentValue) {
+                registrarAsistencia(currentValue);
+                qrInput.value = ''; // Limpiar el input después de procesar
+            }
+        });
+
+        function registrarAsistencia(qrData) {
+            messageDiv.innerText = 'Procesando...';
+            try {
+                const params = JSON.parse(qrData);
+                const url = `${APP_WEB_URL}?FOTOGRAFIA=${encodeURIComponent(params.FOTOGRAFIA)}&NL=${encodeURIComponent(params.NL)}&NOMBRE=${encodeURIComponent(params.NOMBRE)}`;
+                window.location.href = url;
+            } catch (e) {
+                // Si no es un JSON válido, asumimos que es directamente la URL con los parámetros
+                if (qrData.startsWith(APP_WEB_URL) && qrData.includes('FOTOGRAFIA') && qrData.includes('NL') && qrData.includes('NOMBRE')) {
+                    window.location.href = qrData;
+                } else {
+                    messageDiv.innerText = 'Formato QR incorrecto';
+                    console.error('Error de formato QR:', e);
+                    setTimeout(() => {
+                        messageDiv.innerText = '';
+                    }, 3000);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+ 
