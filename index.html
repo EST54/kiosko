@@ -2,8 +2,9 @@
 <html>
 <head>
     <title>Pase de Lista Interactivo</title>
-<link rel="icon" href="https://res.cloudinary.com/deutvpcnz/image/upload/v1748536114/LOGO_EST_nwjbkr.png">
+    <link rel="icon" href="https://res.cloudinary.com/deutvpcnz/image/upload/v1748536114/LOGO_EST_nwjbkr.png">
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
             font-family: sans-serif;
@@ -46,6 +47,7 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             width: 80%;
             max-width: 600px;
+            z-index: 1; /* Para que esté sobre la credencial si ambos se muestran */
         }
         #qrInput {
             padding: 15px 20px;
@@ -60,6 +62,80 @@
             font-size: 1.5em;
             margin-top: 15px;
             text-align: center;
+            z-index: 1;
+            color: black; /* Para que se vea sobre el fondo */
+        }
+
+        /* --- Estilos para la Credencial (ahora dentro de kiosko.html) --- */
+        #credentialOverlay {
+            position: fixed; /* Ocupa toda la pantalla */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro semitransparente */
+            display: flex; /* Para centrar la tarjeta */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Asegura que esté por encima de todo */
+            opacity: 0; /* Inicialmente invisible */
+            visibility: hidden; /* Inicialmente no interactivo */
+            transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+        }
+        #credentialOverlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .card {
+            width: 350px;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            background-image: url("https://res.cloudinary.com/dafpqq4ru/image/upload/v1740514352/1687164524_en-idei-club-p-blue-technology-background-dizain-pinteres-2_hmx3fv.png");
+            background-size: cover;
+            background-repeat: no-repeat;
+            text-align: center;
+            color: #333; /* Texto oscuro sobre la tarjeta */
+            position: relative; /* Para el logo flotante */
+        }
+        .logo-card { /* Diferente nombre para evitar conflicto */
+            width: 80px;
+            float: left;
+            margin-right: 10px;
+            margin-top: 5px;
+        }
+        .photo-card { /* Diferente nombre */
+            width: 200px;
+            height: 200px;
+            border-radius: 0%; 
+            object-fit: cover;
+            margin-top: 15px; /* Espacio después del logo y texto de la escuela */
+        }
+        .data-card {
+            margin-top: 15px;
+            clear: both; /* Limpiar float del logo */
+        }
+        .highlight-card {
+            font-weight: bold;
+        }
+        .footer-card-inner { /* Para el texto de la escuela dentro de la tarjeta */
+            color: #777;
+            font-size: smaller;
+            text-align: center;
+            padding-top: 5px;
+            margin-bottom: 10px;
+        }
+        h1, h2, h3 { color: #003366; margin: 5px 0;} 
+        .status-message {
+            font-weight: bold;
+            color: green; /* Color para mensaje de éxito */
+            margin-top: 10px;
+        }
+        .error-message {
+            font-weight: bold;
+            color: red; /* Color para mensaje de error */
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -73,11 +149,39 @@
     </div>
     <div id="message"></div>
 
+    <div id="credentialOverlay">
+        <div class="card">
+            <img id="cardLogo" src="https://res.cloudinary.com/dafpqq4ru/image/upload/v1740030587/logoEST_huzepg.png" alt="Logo" class="logo-card">
+            <div class="footer-card-inner">
+                <p><h2>ESCUELA SECUNDARIA TECNICA 54</h2></p>
+                <p>Tepejí Del Río de O. Hidalgo</p>
+                <p>C.C.T. 13DST00560</p>
+            </div>
+            <img id="cardPhoto" src="" alt="Fotografía" class="photo-card">
+            <div class="data-card">
+                <p><span class="highlight-card"><h1 id="cardName"></h1></span></p>
+                <p><h3><span class="highlight-card">3° "B"</span></h3></p>
+                <p><span class="highlight-card">Número de Lista:</span> <span id="cardNumberList"></span></p>
+                <p id="cardStatusMessage" class="status-message"></p>
+                <p><span class="highlight-card">Fecha:</span> <span id="cardDate"></span></p>
+                <p><span class="highlight-card">Hora:</span> <span id="cardTime"></span></p>
+            </div>
+        </div>
+    </div>
+
     <script>
         const qrInput = document.getElementById('qrInput');
         const messageDiv = document.getElementById('message');
-        // Asegúrate de que esta URL sea la de tu Google Apps Script desplegado
-        const APP_WEB_URL = 'https://script.google.com/macros/s/AKfycbzZxi6-R_MoMx50ELr3rDWeyXNqeOwYUU-vKhEGX5eRc2IJ8KcfBB4lvf_0SApdiQbmqQ/exec';
+        const APP_WEB_URL = 'https://script.google.com/macros/s/AKfycbx_MkQ9cx4R1s1ed9OUsAU0Dh4foXmAelMzCTiWwjCqODnDyNFZVR9HeKCiIWZygcM1mQ/exec';
+
+        // Elementos de la credencial
+        const credentialOverlay = document.getElementById('credentialOverlay');
+        const cardPhoto = document.getElementById('cardPhoto');
+        const cardName = document.getElementById('cardName');
+        const cardNumberList = document.getElementById('cardNumberList');
+        const cardStatusMessage = document.getElementById('cardStatusMessage');
+        const cardDate = document.getElementById('cardDate');
+        const cardTime = document.getElementById('cardTime');
 
         qrInput.addEventListener('change', function() {
             const currentValue = qrInput.value.trim();
@@ -87,32 +191,72 @@
             }
         });
 
-        function registrarAsistencia(qrData) {
+        async function registrarAsistencia(qrData) {
             messageDiv.innerText = 'Procesando...';
+            let urlToFetch = '';
+
             try {
                 const params = JSON.parse(qrData);
-                // **Añadimos el parámetro RETURN_URL con la URL de tu kiosco**
-                const returnUrl = encodeURIComponent(window.location.href); 
-                const url = `${APP_WEB_URL}?FOTOGRAFIA=${encodeURIComponent(params.FOTOGRAFIA)}&NL=${encodeURIComponent(params.NL)}&NOMBRE=${encodeURIComponent(params.NOMBRE)}&RETURN_URL=${returnUrl}`;
-                window.location.href = url; // Redirige a la página de Apps Script
+                // No necesitamos RETURN_URL aquí, ya que no habrá redirección
+                urlToFetch = `${APP_WEB_URL}?FOTOGRAFIA=${encodeURIComponent(params.FOTOGRAFIA)}&NL=${encodeURIComponent(params.NL)}&NOMBRE=${encodeURIComponent(params.NOMBRE)}`;
             } catch (e) {
-                // Si no es un JSON válido, asumimos que es directamente la URL con los parámetros
-                let targetUrl = qrData;
+                // Si no es un JSON válido, asumimos que es directamente la URL de Apps Script
                 if (qrData.startsWith(APP_WEB_URL) && qrData.includes('FOTOGRAFIA') && qrData.includes('NL') && qrData.includes('NOMBRE')) {
-                    // Si ya es una URL de Apps Script pero le falta RETURN_URL, lo añadimos
-                    if (!qrData.includes('RETURN_URL')) {
-                        const returnUrl = encodeURIComponent(window.location.href);
-                        targetUrl = `${qrData}&RETURN_URL=${returnUrl}`;
-                    }
-                    window.location.href = targetUrl;
+                    urlToFetch = qrData;
                 } else {
                     messageDiv.innerText = 'Formato QR incorrecto';
                     console.error('Error de formato QR:', e);
-                    setTimeout(() => {
-                        messageDiv.innerText = '';
-                    }, 3000);
+                    setTimeout(() => { messageDiv.innerText = ''; }, 3000);
+                    return; // Salir de la función si el formato es incorrecto
                 }
             }
+
+            try {
+                // Realizar la petición fetch al Apps Script
+                const response = await fetch(urlToFetch);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json(); // Esperar la respuesta JSON
+
+                if (data.status === "success") {
+                    mostrarCredencial(data); // Mostrar la credencial con los datos recibidos
+                    messageDiv.innerText = ''; // Limpiar mensaje de "Procesando..."
+                } else {
+                    messageDiv.className = 'error-message';
+                    messageDiv.innerText = data.message;
+                    setTimeout(() => { messageDiv.innerText = ''; messageDiv.className = ''; }, 5000);
+                }
+
+            } catch (error) {
+                messageDiv.className = 'error-message';
+                messageDiv.innerText = 'Error de conexión o en el servidor: ' + error.message;
+                console.error('Error durante la llamada a Apps Script:', error);
+                setTimeout(() => { messageDiv.innerText = ''; messageDiv.className = ''; }, 5000);
+            }
+        }
+
+        function mostrarCredencial(data) {
+            cardPhoto.src = data.fotoURL;
+            cardName.innerText = data.nombre;
+            cardNumberList.innerText = data.numeroLista;
+            cardDate.innerText = data.fecha;
+            cardTime.innerText = data.hora;
+            
+            cardStatusMessage.innerText = data.message;
+            cardStatusMessage.className = data.status === "success" ? 'status-message' : 'error-message';
+
+            credentialOverlay.classList.add('visible'); // Mostrar la credencial
+            qrInput.focus(); // Asegurarse de que el input esté enfocado
+
+            // Ocultar la credencial y limpiar el input después de X segundos
+            setTimeout(() => {
+                credentialOverlay.classList.remove('visible'); // Ocultar la credencial
+                // qrInput.value = ''; // Ya se limpia en el 'change' event listener
+                messageDiv.innerText = '';
+                messageDiv.className = '';
+                qrInput.focus(); // Volver a enfocar el input para el siguiente escaneo
+            }, 6000); // 6 segundos
         }
     </script>
 </body>
