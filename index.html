@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pase de Lista Interactivo
-	 <link rel="icon" type="jpg" href="C:\Users\taki_\Desktop/logotecnologia.ico">
-    </title>
+    <title>Pase de Lista Interactivo</title>
+<link rel="icon" href="https://res.cloudinary.com/deutvpcnz/image/upload/v1748536114/LOGO_EST_nwjbkr.png">
     <meta charset="UTF-8">
     <style>
         body {
@@ -77,7 +76,8 @@
     <script>
         const qrInput = document.getElementById('qrInput');
         const messageDiv = document.getElementById('message');
-        const APP_WEB_URL = 'https://script.google.com/macros/s/AKfycbx_MkQ9cx4R1s1ed9OUsAU0Dh4foXmAelMzCTiWwjCqODnDyNFZVR9HeKCiIWZygcM1mQ/exec'; // Reemplaza con la URL de tu app web (la de doGet)
+        // Asegúrate de que esta URL sea la de tu Google Apps Script desplegado
+        const APP_WEB_URL = 'https://script.google.com/macros/s/AKfycbx_MkQ9cx4R1s1ed9OUsAU0Dh4foXmAelMzCTiWwjCqODnDyNFZVR9HeKCiIWZygcM1mQ/exec';
 
         qrInput.addEventListener('change', function() {
             const currentValue = qrInput.value.trim();
@@ -91,12 +91,20 @@
             messageDiv.innerText = 'Procesando...';
             try {
                 const params = JSON.parse(qrData);
-                const url = `${APP_WEB_URL}?FOTOGRAFIA=${encodeURIComponent(params.FOTOGRAFIA)}&NL=${encodeURIComponent(params.NL)}&NOMBRE=${encodeURIComponent(params.NOMBRE)}`;
-                window.location.href = url;
+                // **Añadimos el parámetro RETURN_URL con la URL de tu kiosco**
+                const returnUrl = encodeURIComponent(window.location.href); 
+                const url = `${APP_WEB_URL}?FOTOGRAFIA=${encodeURIComponent(params.FOTOGRAFIA)}&NL=${encodeURIComponent(params.NL)}&NOMBRE=${encodeURIComponent(params.NOMBRE)}&RETURN_URL=${returnUrl}`;
+                window.location.href = url; // Redirige a la página de Apps Script
             } catch (e) {
                 // Si no es un JSON válido, asumimos que es directamente la URL con los parámetros
+                let targetUrl = qrData;
                 if (qrData.startsWith(APP_WEB_URL) && qrData.includes('FOTOGRAFIA') && qrData.includes('NL') && qrData.includes('NOMBRE')) {
-                    window.location.href = qrData;
+                    // Si ya es una URL de Apps Script pero le falta RETURN_URL, lo añadimos
+                    if (!qrData.includes('RETURN_URL')) {
+                        const returnUrl = encodeURIComponent(window.location.href);
+                        targetUrl = `${qrData}&RETURN_URL=${returnUrl}`;
+                    }
+                    window.location.href = targetUrl;
                 } else {
                     messageDiv.innerText = 'Formato QR incorrecto';
                     console.error('Error de formato QR:', e);
@@ -107,6 +115,167 @@
             }
         }
     </script>
+</body>
+</html>
+Paso 2: Modifica tu Código.gs (Google Apps Script)
+Ahora, tu Apps Script leerá el parámetro RETURN_URL que le envía el kiosko.html y lo utilizará para redirigir la página después de 6 segundos.
+
+Copia este código y reemplaza tu función doGet actual en Código.gs con esta versión. Las funciones registrarAsistencia, buscarColumnaFecha y buscarFilaAlumno deben permanecer sin cambios.
+
+JavaScript
+
+function doGet(e) {
+  const fecha = new Date();
+  const fechaStr = fecha.toLocaleDateString("es-MX", { timeZone: "America/Mexico_City" });
+  const horaStr = fecha.toLocaleTimeString("es-MX", { timeZone: "America/Mexico_City" });
+
+  const fotoURL = e.parameter.FOTOGRAFIA;
+  const numeroLista = e.parameter.NL;
+  const nombre = e.parameter.NOMBRE;
+  const returnUrl = e.parameter.RETURN_URL; // <-- ¡Aquí leemos la URL de tu kiosco!
+
+  registrarAsistencia(numeroLista);
+
+  // Usa la URL de retorno o una predeterminada si no se proporciona (debería venir siempre)
+  const finalReturnUrl = returnUrl || "https://est54.github.io/kiosko/"; // <-- ¡Pon la URL de tu kiosco aquí como fallback!
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Asistencia Exitosa</title>
+        <style>
+          body {
+            font-family: sans-serif;
+            text-align: center;
+            background-color: #5d6d7e;
+            color: white; /* Para asegurar que el texto sea visible */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+          }
+          .card {
+            width: 350px;
+            margin: 20px auto;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+            background-image: url("https://res.cloudinary.com/dafpqq4ru/image/upload/v1740514352/1687164524_en-idei-club-p-blue-technology-background-dizain-pinteres-2_hmx3fv.png");
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: #333; /* Texto oscuro sobre la tarjeta */
+          }
+          .logo {
+            width: 80px;
+            float: left;
+            margin-right: 10px;
+          }
+          .photo {
+            width: 200px;
+            height: 200px;
+            border-radius: 0%;
+            object-fit: cover;
+          }
+          .data {
+            margin-bottom: 15px;
+          }
+          .highlight {
+            font-weight: bold;
+          }
+          .footer-card {
+            color: #777;
+            font-size: smaller;
+            clear: both;
+            padding-top: 10px;
+          }
+          h1, h2, h3 { color: #003366; } /* Color para títulos dentro de la tarjeta */
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <img src="https://res.cloudinary.com/dafpqq4ru/image/upload/v1740030587/logoEST_huzepg.png" alt="Logo" class="logo">
+          <div class="footer-card">
+            <p><h2>ESCUELA SECUNDARIA TECNICA 54</h2></p>
+            <p>Tepejí Del Río de O. Hidalgo</p>
+            <p>C.C.T. 13DST00560</p>
+          </div>
+          <img src="${fotoURL}" alt="Fotografía" class="photo">
+          <div class="data">
+            <p><span class="highlight"><h1>${nombre}</h1></span></p>
+            <p><h3><span class="highlight">3° "B"</span></h3></p>
+            <p><span class="highlight">Número de Lista:</span> ${numeroLista}</p>
+            <p><strong>✅ Asistencia registrada correctamente</strong></p>
+            <p><span class="highlight">Fecha:</span> ${fechaStr}</p>
+            <p><span class="highlight">Hora:</span> ${horaStr}</p>
+          </div>
+        </div>
+        <script>
+          // Espera 6 segundos y luego redirige a la URL del kiosco
+          setTimeout(function() {
+            window.top.location.href = '${finalReturnUrl}'; // Redirige la ventana principal
+          }, 6000); // 6 segundos
+        </script>
+      </body>
+    </html>
+  `;
+  
+  return HtmlService.createHtmlOutput(htmlContent)
+      .setTitle("Asistencia Exitosa")
+      .setSandboxMode(HtmlService.SandboxMode.IFRAME);
+}
+
+// NO MODIFIQUES LAS SIGUIENTES FUNCIONES:
+function registrarAsistencia(numeroLista) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const hojaAsistencia = ss.getSheetByName("Asistencia");
+
+  const fechaActual = new Date();
+  let columnaFecha = buscarColumnaFecha(hojaAsistencia, fechaActual);
+
+  if (columnaFecha === null) {
+    const fechaStr = fechaActual.toLocaleDateString("es-MX", { timeZone: "America/Mexico_City" });
+    hojaAsistencia.getRange(1, hojaAsistencia.getLastColumn() + 1).setValue(fechaStr);
+    columnaFecha = hojaAsistencia.getLastColumn();
+  }
+
+  const filaAlumno = buscarFilaAlumno(hojaAsistencia, numeroLista);
+
+  if (filaAlumno) {
+    hojaAsistencia.getRange(filaAlumno, columnaFecha).setValue("✔");
+  }
+}
+
+function buscarColumnaFecha(hoja, fecha) {
+  const encabezado = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0];
+
+  for (let i = 0; i < encabezado.length; i++) {
+    const valorCelda = encabezado[i];
+    if (valorCelda instanceof Date) {
+      const fechaEncabezado = new Date(valorCelda);
+      if (fechaEncabezado.getFullYear() === fecha.getFullYear() &&
+          fechaEncabezado.getMonth() === fecha.getMonth() &&
+          fechaEncabezado.getDate() === fecha.getDate()) {
+        return i + 1;
+      }
+    }
+  }
+  return null;
+}
+
+function buscarFilaAlumno(hoja, numeroLista) {
+  const datosColumnaA = hoja.getRange("A:A").getValues();
+
+  for (let i = 1; i < datosColumnaA.length; i++) {
+    if (datosColumnaA[i][0] == numeroLista) {
+      return i + 1;
+    }
+  }
+  return null;
+}
 </body>
 </html>
  
