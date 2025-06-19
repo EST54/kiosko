@@ -4,184 +4,217 @@
     <title>Pase de Lista Interactivo</title>
     <link rel="icon" href="https://res.cloudinary.com/deutvpcnz/image/upload/v1748536114/LOGO_EST_nwjbkr.png">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #003366; /* Azul oscuro principal */
+            --secondary-color: #336699; /* Azul medio */
+            --accent-color: #FFC107; /* Amarillo para acentos, si es necesario */
+            --text-color: #333;
+        }
+
         body {
-            font-family: sans-serif;
+            font-family: 'Inter', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center; /* Centrar contenido verticalmente */
             min-height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            background-color: #f0f2f5; /* Color de fallback si la imagen no carga */
             background-image: url('https://res.cloudinary.com/dafpqq4ru/image/upload/v1747966650/fondo_proyecto_pmzmdd.jpg');
             background-size: cover;
             background-position: center;
-        }
-        .header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .school-info {
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        .school-name {
-            margin-bottom: 2px;
-            font-size: 1.8em;
-        }
-        .project-name {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: rgba(0, 0, 0, 0.7);
-        }
-        #inputContainer {
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 20px;
-            border-radius: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            max-width: 600px;
-            z-index: 1; /* Para que esté sobre la credencial si ambos se muestran */
-        }
-        #qrInput {
-            padding: 15px 20px;
-            font-size: 1.5em;
-            border-radius: 25px;
-            border: none;
-            width: calc(100% - 40px);
-            outline: none;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-        #message {
-            font-size: 1.5em;
-            margin-top: 15px;
-            text-align: center;
-            z-index: 1;
-            color: black; /* Para que se vea sobre el fondo */
+            color: var(--text-color);
+            transition: background-color 0.5s ease-in-out;
+            padding: 20px; /* Padding general para evitar que el contenido toque los bordes */
+            box-sizing: border-box; /* Incluir padding y borde en el ancho/alto total */
         }
 
-        /* --- Estilos para la Credencial (ahora dentro de kiosko.html) --- */
-        #credentialOverlay {
-            position: fixed; /* Ocupa toda la pantalla */
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro semitransparente */
-            display: flex; /* Para centrar la tarjeta */
-            justify-content: center;
+        .header {
+            display: flex;
+            flex-direction: column; /* Sigue siendo columna para Nombre Escuela y Grupo IDTec */
             align-items: center;
-            z-index: 1000; /* Asegura que esté por encima de todo */
-            opacity: 0; /* Inicialmente invisible */
-            visibility: hidden; /* Inicialmente no interactivo */
-            transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+            padding: 15px 30px; /* Reducido el padding vertical */
+            margin-top: 20px; /* Menos margen superior */
+            margin-bottom: 25px; /* Menos margen inferior */
+            color: var(--primary-color);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        #credentialOverlay.visible {
-            opacity: 1;
-            visibility: visible;
+
+        .school-name {
+            margin-bottom: 2px; /* Reducido drásticamente */
+            font-size: 2.2em;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            line-height: 1.2;
         }
-        .card {
-            width: 350px;
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            background-image: url("https://res.cloudinary.com/dafpqq4ru/image/upload/v1740514352/1687164524_en-idei-club-p-blue-technology-background-dizain-pinteres-2_hmx3fv.png");
-            background-size: cover;
-            background-repeat: no-repeat;
+
+        .project-title-container {
+            display: flex; /* Nuevo contenedor para "IDTec" y el logo de tecnología */
+            align-items: center; /* Centra verticalmente los elementos */
+            margin-bottom: 10px; /* Espacio debajo de este grupo */
+        }
+
+        .technology-logo {
+            width: 140px; /* **Aún más grande** */
+            height: auto;
+            margin-right: 15px; /* Espacio a la derecha para separarlo de IDTec */
+            animation: bounceIn 1s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+
+        .project-name {
+            font-size: 3em;
+            font-weight: 800;
+            color: var(--secondary-color);
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1; /* Asegura que el texto y el logo se alineen bien */
+            margin: 0; /* Elimina márgenes por defecto */
+        }
+        
+        #inputContainer {
+            padding: 30px 40px;
+            border-radius: 25px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 500px;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            animation: fadeIn 1s ease-out;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #qrInput {
+            padding: 18px 25px;
+            font-size: 1.6em;
+            border-radius: 35px;
+            border: 2px solid var(--primary-color);
+            width: calc(100% - 50px);
+            outline: none;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
             text-align: center;
-            color: #333; /* Texto oscuro sobre la tarjeta */
-            position: relative; /* Para el logo flotante */
+            color: var(--text-color);
+            background-color: transparent; /* Fondo transparente */
+            animation: pulse 2s infinite ease-in-out;
         }
-        .logo-card { /* Diferente nombre para evitar conflicto */
-            width: 80px;
-            float: left;
-            margin-right: 10px;
-            margin-top: 5px;
+
+        #qrInput::placeholder {
+            color: #aaa;
+            opacity: 0.8;
+            font-style: italic; /* Placeholder en itálica */
         }
-        .photo-card { /* Diferente nombre */
-            width: 200px;
-            height: 200px;
-            border-radius: 0%; 
-            object-fit: cover;
-            margin-top: 15px; /* Espacio después del logo y texto de la escuela */
+
+        #qrInput:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 5px rgba(51, 102, 153, 0.4);
+            animation: none;
+            background-color: rgba(255,255,255,0.2);
         }
-        .data-card {
-            margin-top: 15px;
-            clear: both; /* Limpiar float del logo */
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1); }
+            50% { transform: scale(1.01); box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.15), 0 0 10px rgba(0, 51, 102, 0.3); }
+            100% { transform: scale(1); box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1); }
         }
-        .highlight-card {
-            font-weight: bold;
-        }
-        .footer-card-inner { /* Para el texto de la escuela dentro de la tarjeta */
-            color: #777;
-            font-size: smaller;
+
+        #message {
+            font-size: 1.4em;
+            margin-top: 25px;
             text-align: center;
-            padding-top: 5px;
-            margin-bottom: 10px;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            animation: messageFadeIn 0.5s ease-out;
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            border: 1px solid rgba(255, 255, 255, 0.5); /* Borde sutil para el mensaje */
         }
-        h1, h2, h3 { color: #003366; margin: 5px 0;} 
-        .status-message {
-            font-weight: bold;
-            color: green; /* Color para mensaje de éxito */
-            margin-top: 10px;
+
+        @keyframes messageFadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Estilo para el mensaje de procesamiento/error */
+        .processing-message {
+            color: #00e676; /* Verde neón */
+            background-color: rgba(0, 51, 102, 0.9); /* Fondo azul oscuro */
+            border-color: #00e676;
+            text-shadow: 0 0 5px #00e676; /* Efecto de brillo */
         }
         .error-message {
-            font-weight: bold;
-            color: red; /* Color para mensaje de error */
-            margin-top: 10px;
+            color: #ff1744; /* Rojo vibrante */
+            background-color: rgba(51, 0, 0, 0.9); /* Fondo rojo oscuro */
+            border-color: #ff1744;
+            text-shadow: 0 0 5px #ff1744;
         }
+
+        /* Responsive adjustments for vertical screens and smaller devices */
+        @media (max-width: 768px) {
+            .header { margin-top: 15px; margin-bottom: 20px; padding: 10px 20px; }
+            .school-name { font-size: 1.5em; margin-bottom: 0px; }
+            .project-title-container { margin-bottom: 8px; }
+            .technology-logo { width: 100px; margin-right: 10px; } /* Ajuste del logo para móviles */
+            .project-name { font-size: 2.2em; }
+            #inputContainer { padding: 20px 25px; max-width: 95%; margin-bottom: 25px; }
+            #qrInput { font-size: 1.2em; padding: 15px 20px; width: calc(100% - 40px); border-radius: 30px; }
+            #message { font-size: 1.2em; padding: 8px 15px; border-radius: 10px; }
+        }
+
+        @media (max-height: 600px) { /* Para pantallas verticales muy cortas */
+            body { justify-content: flex-start; padding-top: 10px; }
+            .header { margin-top: 5px; margin-bottom: 10px; padding: 5px 10px;}
+            .school-name { font-size: 1.2em; }
+            .project-title-container { margin-bottom: 3px; }
+            .technology-logo { width: 80px; margin-right: 8px; } /* Ajuste del logo para pantallas muy cortas */
+            .project-name { font-size: 1.8em; }
+            #inputContainer { margin-bottom: 10px; padding: 10px 15px; }
+            #qrInput { font-size: 0.9em; padding: 10px 12px; border-radius: 20px;}
+            #message { font-size: 1em; margin-top: 10px; padding: 5px 8px; }
+        }
+
     </style>
 </head>
 <body>
     <div class="header">
         <h1 class="school-name">Escuela Secundaria Tecnica 54</h1>
-        <p class="project-name">IDTec</p>
-    </div>
-    <div id="inputContainer">
-        <input type="text" id="qrInput" placeholder="Acerque su código QR">
-    </div>
-    <div id="message"></div>
-
-    <div id="credentialOverlay">
-        <div class="card">
-            <img id="cardLogo" src="https://res.cloudinary.com/dafpqq4ru/image/upload/v1740030587/logoEST_huzepg.png" alt="Logo" class="logo-card">
-            <div class="footer-card-inner">
-                <p><h2>ESCUELA SECUNDARIA TECNICA 54</h2></p>
-                <p>Tepejí Del Río de O. Hidalgo</p>
-                <p>C.C.T. 13DST00560</p>
-            </div>
-            <img id="cardPhoto" src="" alt="Fotografía" class="photo-card">
-            <div class="data-card">
-                <p><span class="highlight-card"><h1 id="cardName"></h1></span></p>
-                <p><h3><span class="highlight-card">3° "B"</span></h3></p>
-                <p><span class="highlight-card">Número de Lista:</span> <span id="cardNumberList"></span></p>
-                <p id="cardStatusMessage" class="status-message"></p>
-                <p><span class="highlight-card">Fecha:</span> <span id="cardDate"></span></p>
-                <p><span class="highlight-card">Hora:</span> <span id="cardTime"></span></p>
-            </div>
+        <div class="project-title-container">
+            <img src="https://res.cloudinary.com/dafpqq4ru/image/upload/v1747972594/LOGO_TECNOLOGIA_INFORMATICA_sm0gy2.png" alt="Logo Tecnología Informática" class="technology-logo">
+            <p class="project-name">IDTec</p>
         </div>
     </div>
+    <div id="inputContainer">
+        <input type="text" id="qrInput" placeholder="&#xf029; Acerque su código QR" style="font-family: 'Inter', sans-serif, 'Font Awesome 5 Free';">
+    </div>
+    <div id="message"></div>
 
     <script>
         const qrInput = document.getElementById('qrInput');
         const messageDiv = document.getElementById('message');
-        const APP_WEB_URL = 'https://script.google.com/macros/s/AKfycby6WAoDMxwr1879ZNgi3izLmdhj5va80LHS3acUwpx2f2Kz1s11pLMFW2L39r-cN63IiA/exec';
-
-        // Elementos de la credencial
-        const credentialOverlay = document.getElementById('credentialOverlay');
-        const cardPhoto = document.getElementById('cardPhoto');
-        const cardName = document.getElementById('cardName');
-        const cardNumberList = document.getElementById('cardNumberList');
-        const cardStatusMessage = document.getElementById('cardStatusMessage');
-        const cardDate = document.getElementById('cardDate');
-        const cardTime = document.getElementById('cardTime');
+        // Asegúrate de que esta URL sea la de tu Google Apps Script web app
+        const APP_WEB_URL = 'https://script.google.com/macros/s/AKfycbx_MkQ9cx4R1s1ed9OUsAU0Dh4foXmAelMzCTiWwjCqODnDyNFZVR9HeKCiIWZygcM1mQ/exec'; 
 
         qrInput.addEventListener('change', function() {
             const currentValue = qrInput.value.trim();
@@ -191,72 +224,31 @@
             }
         });
 
-        async function registrarAsistencia(qrData) {
-            messageDiv.innerText = 'Procesando...';
-            let urlToFetch = '';
+        function registrarAsistencia(qrData) {
+            // Cambiar el mensaje y el estilo para "Verificando Credenciales..."
+            messageDiv.className = 'processing-message';
+            messageDiv.innerText = 'Verificando Credenciales...';
 
             try {
                 const params = JSON.parse(qrData);
-                // No necesitamos RETURN_URL aquí, ya que no habrá redirección
-                urlToFetch = `${APP_WEB_URL}?FOTOGRAFIA=${encodeURIComponent(params.FOTOGRAFIA)}&NL=${encodeURIComponent(params.NL)}&NOMBRE=${encodeURIComponent(params.NOMBRE)}`;
+                // Aquí usamos la URL de retorno para que el Apps Script sepa a dónde redirigir
+                const url = `${APP_WEB_URL}?FOTOGRAFIA=${encodeURIComponent(params.FOTOGRAFIA)}&NL=${encodeURIComponent(params.NL)}&NOMBRE=${encodeURIComponent(params.NOMBRE)}&RETURN_URL=${encodeURIComponent(window.location.href)}`;
+                window.location.href = url;
             } catch (e) {
-                // Si no es un JSON válido, asumimos que es directamente la URL de Apps Script
+                // Si no es un JSON válido, asumimos que es directamente la URL con los parámetros
                 if (qrData.startsWith(APP_WEB_URL) && qrData.includes('FOTOGRAFIA') && qrData.includes('NL') && qrData.includes('NOMBRE')) {
-                    urlToFetch = qrData;
+                    const url = `${qrData}&RETURN_URL=${encodeURIComponent(window.location.href)}`;
+                    window.location.href = url;
                 } else {
-                    messageDiv.innerText = 'Formato QR incorrecto';
+                    messageDiv.className = 'error-message'; // Añadir clase para estilo de error
+                    messageDiv.innerText = '¡QR Inválido! Intente de nuevo.'; // Mensaje de error más específico
                     console.error('Error de formato QR:', e);
-                    setTimeout(() => { messageDiv.innerText = ''; }, 3000);
-                    return; // Salir de la función si el formato es incorrecto
+                    setTimeout(() => {
+                        messageDiv.innerText = '';
+                        messageDiv.className = ''; // Limpiar la clase
+                    }, 3000);
                 }
             }
-
-            try {
-                // Realizar la petición fetch al Apps Script
-                const response = await fetch(urlToFetch);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json(); // Esperar la respuesta JSON
-
-                if (data.status === "success") {
-                    mostrarCredencial(data); // Mostrar la credencial con los datos recibidos
-                    messageDiv.innerText = ''; // Limpiar mensaje de "Procesando..."
-                } else {
-                    messageDiv.className = 'error-message';
-                    messageDiv.innerText = data.message;
-                    setTimeout(() => { messageDiv.innerText = ''; messageDiv.className = ''; }, 5000);
-                }
-
-            } catch (error) {
-                messageDiv.className = 'error-message';
-                messageDiv.innerText = 'Error de conexión o en el servidor: ' + error.message;
-                console.error('Error durante la llamada a Apps Script:', error);
-                setTimeout(() => { messageDiv.innerText = ''; messageDiv.className = ''; }, 5000);
-            }
-        }
-
-        function mostrarCredencial(data) {
-            cardPhoto.src = data.fotoURL;
-            cardName.innerText = data.nombre;
-            cardNumberList.innerText = data.numeroLista;
-            cardDate.innerText = data.fecha;
-            cardTime.innerText = data.hora;
-            
-            cardStatusMessage.innerText = data.message;
-            cardStatusMessage.className = data.status === "success" ? 'status-message' : 'error-message';
-
-            credentialOverlay.classList.add('visible'); // Mostrar la credencial
-            qrInput.focus(); // Asegurarse de que el input esté enfocado
-
-            // Ocultar la credencial y limpiar el input después de X segundos
-            setTimeout(() => {
-                credentialOverlay.classList.remove('visible'); // Ocultar la credencial
-                // qrInput.value = ''; // Ya se limpia en el 'change' event listener
-                messageDiv.innerText = '';
-                messageDiv.className = '';
-                qrInput.focus(); // Volver a enfocar el input para el siguiente escaneo
-            }, 6000); // 6 segundos
         }
     </script>
 </body>
